@@ -1,5 +1,6 @@
 Weather Trend of cities
 "This project will show you weather(Minimum Temp, Max Temp etc) trend of city of 20 years of selected city(as per our choice from city list as mentioned below)"
+by scrapping the data from a website.
 
 Installation:
 To run this code you should have below library.This code will run on python 3.7 and above version.
