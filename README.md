@@ -9,7 +9,7 @@ pip intall matplotlib,
 pip intall seaborn
 
 
-To run this code, run the following command
+This code will take input as "command line argument", run the following command
 python weather.py [one city name from list as command line argument]
 
 City list:[Aberporth,Armagh,Ballypatrick,Bradford,Braemar,Camborne,Cambridge,Cardiff Chivenor,Cwmystwyth,Dunstaffnage,Durham,Eastbourne,Eskdalemuir,Heathrow Hurn,Lerwick,Leuchars,Manston,Nairn,NewtonRigg,Oxford,Paisley Ringway,RossonWye,Shawbury,Sheffield,Southampton,Stornoway,SuttonBonington Tiree,Valley,Waddington,WickAirport,Yeovilton]
