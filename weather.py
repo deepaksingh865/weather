@@ -1,8 +1,8 @@
-#*****************Hello**********************
 import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from io import StringIO
 import sys
 
 places=['Aberporth', 'Armagh', 'Ballypatrick', 'Bradford', 'Braemar', 'Camborne', 'Cambridge', 'Cardiff','Chivenor',
@@ -11,55 +11,32 @@ places=['Aberporth', 'Armagh', 'Ballypatrick', 'Bradford', 'Braemar', 'Camborne'
         'Southampton', 'Stornoway', 'SuttonBonington', 'Tiree', 'Valley', 'Waddington', 'WickAirport','Yeovilton']
 flag=0
 try:
-    user_input=sys.argv[1]
+    user_input= sys.argv[1]
     if(user_input not in places):
         flag=1
     location=user_input.lower()
     r = requests.get('https://www.metoffice.gov.uk/pub/data/weather/uk/climate/stationdata/{0}data.txt'.format(location))
     raw_data = r.text
-    # ********* Removing special character and unwanted word************
-    un = ["*", "#", "Provisional", "||", "---"]
-    for i in un:
-        if i == "---":
-            data1 = raw_data.replace(i, "0")
-            raw_data = data1
-        else:
-            data1 = raw_data.replace(i, "")
-            raw_data = data1
-    data2 = data1.split()
+    file_data=StringIO(raw_data)
 
-    # ***************Data Parsing********************************************
-    p = (data2.index("hours") + 1)
-    length = len(data2)
-    datalist = []
-    month = ["Jan", "Fab", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    while ((p + 7) < length):
-        l = []
-        for y in range(0, 7):
-            if y == 0:
-                l.append(int(data2[p + y]))
-            elif y == 1:
-                l.append(month[int((data2[p + y])) - 1])
-            else:
-                l.append(float(data2[p + y]))
-        datalist.append(l)
-        p = p + 7
+    df=pd.read_fwf(file_data,skiprows=6)
+    df.columns=["Year","Month","Max","Min","AF","Rain","Sunhour"]
+    df.replace(to_replace='---',value=0,inplace=True)
 
-    ###########DataFrame############
-    df = pd.DataFrame(datalist, columns=["Year", "Month", "Max", "Min", "AF", "Rain", "Sunhour"])
-    # df.to_csv("weather3.csv")
-    m = df.loc[df["Year"].idxmax()]
-    var_df = df[df['Year'] < m[0]]  # ********* Selection of 20 years
-    required_df = var_df[var_df['Year'] > m[0] - 22]
+    last_year=df['Year'].max()
+    required_df=df[df['Year'].between(last_year-21, last_year-1)]
+    required_df.reset_index(drop=True,inplace=True)
+    required_df=required_df.astype(float)
+    required_df['Year']=required_df['Year'].astype(int)
+    required_df['Month']=required_df['Month'].astype(int)
 
-    # ********* Average of Columns Data *******************
-    Av = required_df.groupby(by="Year").mean()
-    Av.reset_index(level=0, inplace=True)
+    av=required_df.groupby('Year').mean()
+    av.reset_index(level=0,inplace=True)
 
     # **************Plotting*********************
     figure, axis = plt.subplots(nrows=2, ncols=2, figsize=(20, 20))
 
-    fig1 = sns.barplot(data=Av, x="Year", y="Min", ax=axis[0,1])
+    fig1 = sns.barplot(data=av, x="Year", y="Min", ax=axis[0,1])
     fig1.set(ylabel="Avg minimum temperature(in degree):", title="Average Minimum Temp for every year")
     plt.xticks(rotation=45)
 
